@@ -2,13 +2,12 @@ package ru.netology.page;
 
 import com.codeborne.selenide.Condition;
 import com.codeborne.selenide.SelenideElement;
-import lombok.Data;
 import org.openqa.selenium.Keys;
 import ru.netology.data.DataHelper;
 
 import static com.codeborne.selenide.Selenide.$;
 
-@Data
+
 public class VerificationPage {
     private SelenideElement codeField = $("[data-test-id=code] input");
     private SelenideElement errorNotification = $("[data-test-id=error-notification] .notification__title");
@@ -23,13 +22,13 @@ public class VerificationPage {
         return new DashboardPage();
     }
 
-    public VerificationPage noValidVerify(DataHelper.VerificationCode info) {
+    public void noValidVerify(DataHelper.VerificationCode info) {
         codeField.setValue(info.getCode()).sendKeys(Keys.ENTER);
-        return new VerificationPage();
+        errorNotification.shouldBe(Condition.visible);
     }
 
-    public VerificationPage emptyCode() {
+    public void emptyCode() {
         codeField.sendKeys(Keys.ENTER);
-        return new VerificationPage();
+        codeInputInvalid.shouldHave(Condition.exactText("Поле обязательно для заполнения"));
     }
 }

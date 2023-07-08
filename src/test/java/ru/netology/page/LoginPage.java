@@ -1,12 +1,11 @@
 package ru.netology.page;
 
+import com.codeborne.selenide.Condition;
 import com.codeborne.selenide.SelenideElement;
-import lombok.Data;
 import ru.netology.data.DataHelper;
 
 import static com.codeborne.selenide.Selenide.$;
 
-@Data
 public class LoginPage {
     private SelenideElement loginField = $("[data-test-id=login] input");
     private SelenideElement passwordField = $("[data-test-id=password] input");
@@ -22,22 +21,22 @@ public class LoginPage {
         return new VerificationPage();
     }
 
-    public LoginPage noValidLogin(DataHelper.AuthInfo info) {
+    public void noValidLogin(DataHelper.AuthInfo info) {
         loginField.setValue(info.getLogin());
         passwordField.setValue(info.getPassword());
         loginButton.click();
-        return new LoginPage();
+        errorNotification.shouldBe(Condition.visible);
     }
 
-    public LoginPage emptyLogin(DataHelper.AuthInfo info) {
+    public void emptyLogin(DataHelper.AuthInfo info) {
         passwordField.setValue(info.getPassword());
         loginButton.click();
-        return new LoginPage();
+        loginInputInvalid.shouldHave(Condition.exactText("Поле обязательно для заполнения"));
     }
 
-    public LoginPage emptyPassword(DataHelper.AuthInfo info) {
+    public void emptyPassword(DataHelper.AuthInfo info) {
         loginField.setValue(info.getLogin());
         loginButton.click();
-        return new LoginPage();
+        passwordInputInvalid.shouldHave(Condition.exactText("Поле обязательно для заполнения"));
     }
 }

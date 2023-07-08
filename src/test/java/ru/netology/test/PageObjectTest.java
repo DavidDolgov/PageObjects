@@ -1,6 +1,5 @@
 package ru.netology.test;
 
-import com.codeborne.selenide.Condition;
 import com.codeborne.selenide.Configuration;
 import org.junit.jupiter.api.*;
 import ru.netology.data.DataHelper;
@@ -25,13 +24,11 @@ public class PageObjectTest {
         var verificationCode = DataHelper.getVerificationCode(authInfo);
         var dashboardPage = verificationPage.validVerify(verificationCode);
         var card1ReplenishPage = dashboardPage.pressButton1();
-        card1ReplenishPage.card1Replenishment(DataHelper.getTransferAmount(), 2);
+        card1ReplenishPage.cardReplenishment(DataHelper.getTransferAmount(), 2);
         var card2ReplenishPage = dashboardPage.pressButton2();
-        card2ReplenishPage.card2Replenishment(DataHelper.getTransferAmount(), 1);
+        card2ReplenishPage.cardReplenishment(DataHelper.getTransferAmount(), 1);
 
-        int expected = 0;
-        int actual = dashboardPage.getDifferenceInCardAmounts();
-        Assertions.assertEquals(expected, actual);
+        Assertions.assertEquals(dashboardPage.getCardBalance(1), dashboardPage.getCardBalance(2));
     }
 
     @Test
@@ -40,7 +37,6 @@ public class PageObjectTest {
         var loginPage = new LoginPage();
         var authInfo = DataHelper.getOtherLoginAuthInfo();
         loginPage.noValidLogin(authInfo);
-        loginPage.getErrorNotification().shouldBe(Condition.visible);
     }
 
     @Test
@@ -49,7 +45,6 @@ public class PageObjectTest {
         var loginPage = new LoginPage();
         var authInfo = DataHelper.getOtherPasswordAuthInfo();
         loginPage.noValidLogin(authInfo);
-        loginPage.getErrorNotification().shouldBe(Condition.visible);
     }
 
     @Test
@@ -58,7 +53,6 @@ public class PageObjectTest {
         var loginPage = new LoginPage();
         var authInfo = DataHelper.getOtherAuthInfo();
         loginPage.noValidLogin(authInfo);
-        loginPage.getErrorNotification().shouldBe(Condition.visible);
     }
 
     @Test
@@ -67,7 +61,6 @@ public class PageObjectTest {
         var loginPage = new LoginPage();
         var authInfo = DataHelper.getAuthInfo();
         loginPage.emptyLogin(authInfo);
-        loginPage.getLoginInputInvalid().shouldHave(Condition.exactText("Поле обязательно для заполнения"));
     }
 
     @Test
@@ -76,7 +69,6 @@ public class PageObjectTest {
         var loginPage = new LoginPage();
         var authInfo = DataHelper.getAuthInfo();
         loginPage.emptyPassword(authInfo);
-        loginPage.getPasswordInputInvalid().shouldHave(Condition.exactText("Поле обязательно для заполнения"));
     }
 
     @Test
@@ -87,7 +79,6 @@ public class PageObjectTest {
         var verificationPage = loginPage.validLogin(authInfo);
         var verificationCode = DataHelper.getNotVerificationCode(authInfo);
         verificationPage.noValidVerify(verificationCode);
-        verificationPage.getErrorNotification().shouldBe(Condition.visible);
     }
 
     @Test
@@ -97,7 +88,6 @@ public class PageObjectTest {
         var authInfo = DataHelper.getAuthInfo();
         var verificationPage = loginPage.validLogin(authInfo);
         verificationPage.emptyCode();
-        verificationPage.getCodeInputInvalid().shouldHave(Condition.exactText("Поле обязательно для заполнения"));
     }
 
     @Test
@@ -109,8 +99,7 @@ public class PageObjectTest {
         var verificationCode = DataHelper.getVerificationCode(authInfo);
         var dashboardPage = verificationPage.validVerify(verificationCode);
         var card1ReplenishPage = dashboardPage.pressButton1();
-        card1ReplenishPage.card1ReplenishmentEmptyFields();
-        card1ReplenishPage.getErrorNotification().shouldBe(Condition.visible);
+        card1ReplenishPage.cardReplenishmentEmptyFields();
     }
 
     @Test
@@ -122,8 +111,7 @@ public class PageObjectTest {
         var verificationCode = DataHelper.getVerificationCode(authInfo);
         var dashboardPage = verificationPage.validVerify(verificationCode);
         var card1ReplenishPage = dashboardPage.pressButton1();
-        card1ReplenishPage.card1ReplenishmentEmptyNumberCardField(DataHelper.getTransferAmount());
-        card1ReplenishPage.getErrorNotification().shouldBe(Condition.visible);
+        card1ReplenishPage.cardReplenishmentEmptyNumberCardField(DataHelper.getTransferAmount());
     }
 
     @Test
@@ -135,8 +123,7 @@ public class PageObjectTest {
         var verificationCode = DataHelper.getVerificationCode(authInfo);
         var dashboardPage = verificationPage.validVerify(verificationCode);
         var card1ReplenishPage = dashboardPage.pressButton1();
-        card1ReplenishPage.card1ReplenishmentOtherNumberCardField(DataHelper.getTransferAmount());
-        card1ReplenishPage.getErrorNotification().shouldBe(Condition.visible);
+        card1ReplenishPage.cardReplenishmentOtherNumberCardField(DataHelper.getTransferAmount());
     }
 
     @Test
@@ -148,7 +135,7 @@ public class PageObjectTest {
         var verificationCode = DataHelper.getVerificationCode(authInfo);
         var dashboardPage = verificationPage.validVerify(verificationCode);
         var card1ReplenishPage = dashboardPage.pressButton1();
-        card1ReplenishPage.card1ReplenishmentFromThisCardField(DataHelper.getTransferAmount());
+        card1ReplenishPage.cardReplenishment(DataHelper.getTransferAmount(), 1);
     }
 
     @Test
@@ -172,19 +159,17 @@ public class PageObjectTest {
         var verificationCode = DataHelper.getVerificationCode(authInfo);
         var dashboardPage = verificationPage.validVerify(verificationCode);
         var card1ReplenishPage = dashboardPage.pressButton1();
-        card1ReplenishPage.card1Replenishment(DataHelper.getNegativeTransferAmount(), 2);
+        card1ReplenishPage.cardReplenishment(DataHelper.getNegativeTransferAmount(), 2);
 
-        boolean expected;
-        if (dashboardPage.getCardBalance(dashboardPage.getCard2()) < 0) {
-            expected = true;
-        } else {
-            expected = false;
-        }
-        boolean actual = true;
-        Assertions.assertEquals(expected, actual);
+        int expectedCard1 = 10000 + DataHelper.getNegativeTransferAmount();
+        int actualCard1 = dashboardPage.getCardBalance(1);
+        int expectedCard2 = 10000 - DataHelper.getNegativeTransferAmount();
+        int actualCard2 = dashboardPage.getCardBalance(2);
+        Assertions.assertEquals(expectedCard1,actualCard1);
+        Assertions.assertEquals(expectedCard2,actualCard2);
 
         var card2ReplenishPage = dashboardPage.pressButton2();
-        card2ReplenishPage.card2Replenishment(DataHelper.getNegativeTransferAmount(), 1);
+        card2ReplenishPage.cardReplenishment(DataHelper.getNegativeTransferAmount(), 1);
     }
 
     @Test
@@ -196,8 +181,7 @@ public class PageObjectTest {
         var verificationCode = DataHelper.getVerificationCode(authInfo);
         var dashboardPage = verificationPage.validVerify(verificationCode);
         var card2ReplenishPage = dashboardPage.pressButton2();
-        card2ReplenishPage.card2ReplenishmentEmptyFields();
-        card2ReplenishPage.getErrorNotification().shouldBe(Condition.visible);
+        card2ReplenishPage.cardReplenishmentEmptyFields();
     }
 
     @Test
@@ -209,8 +193,7 @@ public class PageObjectTest {
         var verificationCode = DataHelper.getVerificationCode(authInfo);
         var dashboardPage = verificationPage.validVerify(verificationCode);
         var card2ReplenishPage = dashboardPage.pressButton2();
-        card2ReplenishPage.card2ReplenishmentEmptyNumberCardField(DataHelper.getTransferAmount());
-        card2ReplenishPage.getErrorNotification().shouldBe(Condition.visible);
+        card2ReplenishPage.cardReplenishmentEmptyNumberCardField(DataHelper.getTransferAmount());
     }
 
     @Test
@@ -222,8 +205,7 @@ public class PageObjectTest {
         var verificationCode = DataHelper.getVerificationCode(authInfo);
         var dashboardPage = verificationPage.validVerify(verificationCode);
         var card2ReplenishPage = dashboardPage.pressButton2();
-        card2ReplenishPage.card2ReplenishmentOtherNumberCardField(DataHelper.getTransferAmount());
-        card2ReplenishPage.getErrorNotification().shouldBe(Condition.visible);
+        card2ReplenishPage.cardReplenishmentOtherNumberCardField(DataHelper.getTransferAmount());
     }
 
     @Test
@@ -235,7 +217,7 @@ public class PageObjectTest {
         var verificationCode = DataHelper.getVerificationCode(authInfo);
         var dashboardPage = verificationPage.validVerify(verificationCode);
         var card2ReplenishPage = dashboardPage.pressButton2();
-        card2ReplenishPage.card2ReplenishmentFromThisCardField(DataHelper.getTransferAmount());
+        card2ReplenishPage.cardReplenishment(DataHelper.getTransferAmount(),2);
     }
 
     @Test
@@ -259,18 +241,17 @@ public class PageObjectTest {
         var verificationCode = DataHelper.getVerificationCode(authInfo);
         var dashboardPage = verificationPage.validVerify(verificationCode);
         var card2ReplenishPage = dashboardPage.pressButton2();
-        card2ReplenishPage.card2Replenishment(DataHelper.getNegativeTransferAmount(), 1);
+        card2ReplenishPage.cardReplenishment(DataHelper.getNegativeTransferAmount(), 1);
 
-        boolean expected;
-        if (dashboardPage.getCardBalance(dashboardPage.getCard1()) < 0) {
-            expected = true;
-        } else {
-            expected = false;
-        }
-        boolean actual = true;
-        Assertions.assertEquals(expected, actual);
+        int expectedCard2 = 10000 + DataHelper.getNegativeTransferAmount();
+        int actualCard2 = dashboardPage.getCardBalance(2);
+        int expectedCard1 = 10000 - DataHelper.getNegativeTransferAmount();
+        int actualCard1 = dashboardPage.getCardBalance(1);
+        Assertions.assertEquals(expectedCard2,actualCard2);
+        Assertions.assertEquals(expectedCard1,actualCard1);
+
 
         var card1ReplenishPage = dashboardPage.pressButton1();
-        card1ReplenishPage.card1Replenishment(DataHelper.getNegativeTransferAmount(), 2);
+        card1ReplenishPage.cardReplenishment(DataHelper.getNegativeTransferAmount(), 2);
     }
 }
