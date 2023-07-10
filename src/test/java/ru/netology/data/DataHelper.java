@@ -44,7 +44,8 @@ public class DataHelper {
     public static class CardsNumber {
         private static String card1 = "5559 0000 0000 0001";
         private static String card2 = "5559 0000 0000 0002";
-        private static String[] cards = {card1, card2};
+        private static String notNumberCard = "1111 2222 3333 4444";
+        private static String[] cards = {card1, card2, notNumberCard};
 
         public static String getNumberCard(int number) {
             return cards[number - 1];

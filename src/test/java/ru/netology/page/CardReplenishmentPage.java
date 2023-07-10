@@ -54,10 +54,10 @@ public class CardReplenishmentPage {
         errorNotification.shouldBe(Condition.visible);
     }
 
-    public void cardReplenishmentOtherNumberCardField(int amount) {
+    public void cardReplenishmentOtherNumberCardField(int amount, int fromCardNumber) {
         clearFields();
         setValueAmount(amount);
-        fromField.setValue("1111 2222 3333 4444");
+        fromField.setValue(DataHelper.CardsNumber.getNumberCard(fromCardNumber));
         transferButton.click();
         errorNotification.shouldBe(Condition.visible);
     }
@@ -70,4 +70,11 @@ public class CardReplenishmentPage {
         return new DashboardPage();
     }
 
+    public void cardReplenishmentNegative(int amount, int fromCardNumber) {
+        clearFields();
+        setValueAmount(amount);
+        setValueFromNumberCard(fromCardNumber);
+        transferButton.click();
+        errorNotification.shouldBe(Condition.visible);
+    }
 }

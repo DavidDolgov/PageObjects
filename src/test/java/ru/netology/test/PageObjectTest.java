@@ -16,19 +16,24 @@ public class PageObjectTest {
     }
 
     @Test
-    @DisplayName("Положительный сценарий пополнения c карты на карту 200 р. и обратно")
+    @DisplayName("Положительный сценарий пополнения c карты на карту 200 р.")
     void shouldReplenishFromCardToCard() {
         var loginPage = new LoginPage();
         var authInfo = DataHelper.getAuthInfo();
         var verificationPage = loginPage.validLogin(authInfo);
         var verificationCode = DataHelper.getVerificationCode(authInfo);
         var dashboardPage = verificationPage.validVerify(verificationCode);
+        int balance1 = dashboardPage.getCardBalance(1);
+        int balance2 = dashboardPage.getCardBalance(2);
         var card1ReplenishPage = dashboardPage.pressButton1();
         card1ReplenishPage.cardReplenishment(DataHelper.getTransferAmount(), 2);
-        var card2ReplenishPage = dashboardPage.pressButton2();
-        card2ReplenishPage.cardReplenishment(DataHelper.getTransferAmount(), 1);
 
-        Assertions.assertEquals(dashboardPage.getCardBalance(1), dashboardPage.getCardBalance(2));
+        int expected1 = balance1 + DataHelper.getTransferAmount();
+        int actual1 = dashboardPage.getCardBalance(1);
+        int expected2 = balance2 - DataHelper.getTransferAmount();
+        int actual2 = dashboardPage.getCardBalance(2);
+        Assertions.assertEquals(expected1, actual1);
+        Assertions.assertEquals(expected2, actual2);
     }
 
     @Test
@@ -123,7 +128,7 @@ public class PageObjectTest {
         var verificationCode = DataHelper.getVerificationCode(authInfo);
         var dashboardPage = verificationPage.validVerify(verificationCode);
         var card1ReplenishPage = dashboardPage.pressButton1();
-        card1ReplenishPage.cardReplenishmentOtherNumberCardField(DataHelper.getTransferAmount());
+        card1ReplenishPage.cardReplenishmentOtherNumberCardField(DataHelper.getTransferAmount(),3);
     }
 
     @Test
@@ -135,7 +140,7 @@ public class PageObjectTest {
         var verificationCode = DataHelper.getVerificationCode(authInfo);
         var dashboardPage = verificationPage.validVerify(verificationCode);
         var card1ReplenishPage = dashboardPage.pressButton1();
-        card1ReplenishPage.cardReplenishment(DataHelper.getTransferAmount(), 1);
+        card1ReplenishPage.cardReplenishmentNegative(DataHelper.getTransferAmount(), 1);
     }
 
     @Test
@@ -158,18 +163,10 @@ public class PageObjectTest {
         var verificationPage = loginPage.validLogin(authInfo);
         var verificationCode = DataHelper.getVerificationCode(authInfo);
         var dashboardPage = verificationPage.validVerify(verificationCode);
+        Assertions.assertEquals(dashboardPage.getCardBalance(1),dashboardPage.getCardBalance(2));
         var card1ReplenishPage = dashboardPage.pressButton1();
-        card1ReplenishPage.cardReplenishment(DataHelper.getNegativeTransferAmount(), 2);
 
-        int expectedCard1 = 10000 + DataHelper.getNegativeTransferAmount();
-        int actualCard1 = dashboardPage.getCardBalance(1);
-        int expectedCard2 = 10000 - DataHelper.getNegativeTransferAmount();
-        int actualCard2 = dashboardPage.getCardBalance(2);
-        Assertions.assertEquals(expectedCard1,actualCard1);
-        Assertions.assertEquals(expectedCard2,actualCard2);
-
-        var card2ReplenishPage = dashboardPage.pressButton2();
-        card2ReplenishPage.cardReplenishment(DataHelper.getNegativeTransferAmount(), 1);
+        card1ReplenishPage.cardReplenishmentNegative(DataHelper.getNegativeTransferAmount(), 2);
     }
 
     @Test
@@ -205,7 +202,7 @@ public class PageObjectTest {
         var verificationCode = DataHelper.getVerificationCode(authInfo);
         var dashboardPage = verificationPage.validVerify(verificationCode);
         var card2ReplenishPage = dashboardPage.pressButton2();
-        card2ReplenishPage.cardReplenishmentOtherNumberCardField(DataHelper.getTransferAmount());
+        card2ReplenishPage.cardReplenishmentOtherNumberCardField(DataHelper.getTransferAmount(),3);
     }
 
     @Test
@@ -217,7 +214,7 @@ public class PageObjectTest {
         var verificationCode = DataHelper.getVerificationCode(authInfo);
         var dashboardPage = verificationPage.validVerify(verificationCode);
         var card2ReplenishPage = dashboardPage.pressButton2();
-        card2ReplenishPage.cardReplenishment(DataHelper.getTransferAmount(),2);
+        card2ReplenishPage.cardReplenishmentNegative(DataHelper.getTransferAmount(),2);
     }
 
     @Test
@@ -240,18 +237,8 @@ public class PageObjectTest {
         var verificationPage = loginPage.validLogin(authInfo);
         var verificationCode = DataHelper.getVerificationCode(authInfo);
         var dashboardPage = verificationPage.validVerify(verificationCode);
+        Assertions.assertEquals(dashboardPage.getCardBalance(1),dashboardPage.getCardBalance(2));
         var card2ReplenishPage = dashboardPage.pressButton2();
-        card2ReplenishPage.cardReplenishment(DataHelper.getNegativeTransferAmount(), 1);
-
-        int expectedCard2 = 10000 + DataHelper.getNegativeTransferAmount();
-        int actualCard2 = dashboardPage.getCardBalance(2);
-        int expectedCard1 = 10000 - DataHelper.getNegativeTransferAmount();
-        int actualCard1 = dashboardPage.getCardBalance(1);
-        Assertions.assertEquals(expectedCard2,actualCard2);
-        Assertions.assertEquals(expectedCard1,actualCard1);
-
-
-        var card1ReplenishPage = dashboardPage.pressButton1();
-        card1ReplenishPage.cardReplenishment(DataHelper.getNegativeTransferAmount(), 2);
+        card2ReplenishPage.cardReplenishmentNegative(DataHelper.getNegativeTransferAmount(), 2);
     }
 }
